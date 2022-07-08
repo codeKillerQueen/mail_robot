@@ -19,24 +19,24 @@ from ding_robot import ding
 def get_datas():
     try:
         # 从数据库中读取目标数据
-        cities = ['RAPDB_HN_HaiKou_PRC', 'RAPDB_SD_HeZe_PRC', 'RAPDB_SC_MianYang_PRC']
+        cities = ['city1', 'city2', 'city3']
         datas = []
         # 跟数据库建立连接
-        conn = connect(host='171.217.92.221:12223',
-                       user='CAP_HeWanTing',
-                       password='9JTToK*pExMgh7e$@U#UdcoMiApq1oLI',
-                       database='RAPDB_HN_HaiKou_TM',
+        conn = connect(host='host',
+                       user='user',
+                       password='passwd',
+                       database='db',
                        autocommit=True)
         # 使用 cursor() 方法创建一个游标对象 cursor
         cur = conn.cursor()
         # 使用 execute() 方法执行 SQL
         # 获取所需要的数据
         for item in cities:
-            cur.execute("SELECT COUNT(1) FROM {}..t_p_batchinfo".format(item))
+            cur.execute("SELECT COUNT(1) FROM {}..tb1".format(item))
             count1 = int(cur.fetchone()[0])
-            cur.execute("SELECT COUNT(1) FROM {}..t_p_building".format(item))
+            cur.execute("SELECT COUNT(1) FROM {}..tb2".format(item))
             count2 = int(cur.fetchone()[0])
-            cur.execute("SELECT COUNT(1) FROM {}..t_p_rooms".format(item))
+            cur.execute("SELECT COUNT(1) FROM {}..tb3".format(item))
             count3 = int(cur.fetchone()[0])
             datas.append((count1, count2, count3))
         # 关闭连接
@@ -51,7 +51,7 @@ def get_datas():
 
 def get_excel(data, file):
     try:
-        # 打开已有表格
+        # 打开已有表格，根据自身需要填入数据
         wb = load_workbook('template.xlsx')
         ws = wb['Sheet1']
         ws['C4'] = data[0][0]
@@ -82,6 +82,7 @@ def get_excel(data, file):
 
 def get_content(file_path):
     try:
+        # 生成邮件正文，展示表格预览
         xd = ExcelFile(file_path, engine='openpyxl')
         df = xd.parse()
         print('df:', df)
@@ -252,7 +253,7 @@ def main():
     my_data = get_datas()
 
     # 文件名称
-    my_file_name = '城市采集表数据检查_' + date + '.xlsx'
+    my_file_name = '数据检查_' + date + '.xlsx'
     # my_file_name = 'test.xlsx'
     print('my_file_name:', my_file_name)
 
@@ -262,10 +263,10 @@ def main():
     # 文件路径
     new_file_path = './tables/' + my_file_name
 
-    my_email_from = '1659026978@qq.com'
-    my_email_to = 'reallyinfo'
+    my_email_from = 'xxx@xxx.com'
+    my_email_to = 'xxx'
     # 邮件标题
-    my_email_subject = '城市采集表数据检查_' + date + '-贺琬婷'
+    my_email_subject = '数据检查_' + date 
     # 邮件正文
     my_email_text = get_content(new_file_path)
     # 附件地址
@@ -279,8 +280,6 @@ def main():
     my_sender = '1659026978@qq.com'
     my_password = 'wmnwyialdvgffcjb'
     # 接收人邮箱列表
-    # my_receiver = ['1812883703@qq.com', '365490010@qq.com', '853514522@qq.com', '34578008@qq.com']
-    # my_receiver = ['1812883703@qq.com']
     with open('receiver.txt', 'r', encoding='UTF-8') as f:
         my_receiver = [r.strip() for r in f.readlines()]
     print('接收人：', my_receiver)
